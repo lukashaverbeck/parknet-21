@@ -16,6 +16,9 @@ def _initialize_agent() -> None:
     """ Sets the main agent's signature and delta based on the ``agent.json`` file.
 
     After successful initialization the main agent ist flagged with ``MainAgent.INITIALIZED = True``.
+
+    Raises:
+        AssertionError: If attributes file does not contain the required agent information.
     """
 
     # open attributes file

@@ -6,22 +6,43 @@ from typing import Any
 from util.threaded import threaded
 
 
-def stabilized_concurrent(name: str, min_delay: float, max_delay: float, steps: int, daemon: bool = True):
-    assert min_delay < max_delay, "Minimum delay must be less than max delay."
+def stabilized_concurrent(name: str, min_delay: float, max_delay: float, steps: int, daemon: bool = True) -> Callable:
+    # the minimum delay must be less than the maximum delay
+    assert 0 < min_delay < max_delay, "Minimum delay must be positive and less than max delay."
+
+    # there must be at least one step from minimum to maximum delay
     assert steps > 0, "It must take at least one step to reach the maximum delay."
 
-    def calc_delay(stable_intervals: int):
-        return min(max_delay, min_delay * math.exp(stable_intervals * math.log(max_delay) / steps))
+    def calc_delay(stable_intervals: int) -> float:
+        """ Calculates the delay before the next execution based on the number of consecutive stable executions.
 
-    def decorator(function: Callable[[Any], bool]):
+        The delay d is defined as min_delay * exp(stable_intervals * ln(max_delay / min_delay) / steps) normally but is
+        at maximum ``max_delay``. For 0 stable intervals the delay is ``min_delay``. After ``steps`` stable intervals,
+        the delay is ``max_delay``.
+
+        Args:
+            stable_intervals: Number of consecutive stable executions.
+
+        Returns:
+            The delay to wait before the next execution in seconds.
+        """
+
+        return min(max_delay, min_delay * math.exp(stable_intervals * math.log(max_delay / min_delay) / steps))
+
+    def decorator(function: Callable[[Any], bool]) -> Callable:
         @threaded(name, daemon)
-        def concurrent_execution(*args, **kwargs):
+        def concurrent_execution(*args, **kwargs) -> None:
             stable_intervals = 0
 
             while True:
+                # execute the decorated function and save the result
                 stable = function(*args, **kwargs)
+
+                # calculate a dynamic delay and stop the execution for the corresponding duration
                 delay = calc_delay(stable_intervals)
                 time.sleep(delay)
+
+                # update number of stable executions accordingly to the result of the latest execution
                 stable_intervals = stable_intervals + 1 if stable else 0
 
         return concurrent_execution

@@ -181,6 +181,10 @@ class _RelationGraph:
 
         Returns:
             The transitivity list starting from the given vertex member.
+
+        Raises:
+            AssertionError: If the given starting member is not a vertex member.
+            AssertionError: If there is a cyclical transitivity.
         """
 
         # starting member must be a vertex member
@@ -269,6 +273,9 @@ class _RelationGraph:
 
         Returns:
             The vertex member.
+
+        Raises:
+            AssertionError: If there is no vertex member with the given signature.
         """
 
         # vertex member must be in vertices

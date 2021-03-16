@@ -49,6 +49,9 @@ class Message(Generic[MessageContent]):
 
         Returns:
             The message represented by the JSON string.
+
+        Raises:
+            AssertionError: If the message does not contain the required message information.
         """
 
         # decode json data
