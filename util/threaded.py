@@ -1,5 +1,5 @@
 from threading import Thread
-from typing import Callable
+from typing import Callable, Any
 
 
 def threaded(name: str, daemon: bool = True) -> Callable:
@@ -9,7 +9,7 @@ def threaded(name: str, daemon: bool = True) -> Callable:
     called.
 
     Notes:
-        A ``@threaded`` function cannot return Values other than None since it is run in its own thread.
+        A ``@threaded`` function should return values other than None since it is run in its own thread.
 
     Args:
         name: Name of the thread the function is executed in.
@@ -19,7 +19,7 @@ def threaded(name: str, daemon: bool = True) -> Callable:
         The according decorator function.
     """
 
-    def decorator(function: Callable) -> Callable:
+    def decorator(function: Callable[[Any], None]) -> Callable:
         def execute_in_thread(*args, **kwargs) -> None:
             thread = Thread(target=lambda: function(*args, **kwargs), name=name, daemon=daemon)
             thread.start()
