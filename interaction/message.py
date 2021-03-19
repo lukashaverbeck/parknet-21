@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
-from typing import TypeVar, Generic
+from typing import TypeVar, Generic, Callable, Any
 
-from util.assertions import assert_keys_exist
+import util
 
 MessageContent = TypeVar("MessageContent")
 
@@ -58,7 +58,7 @@ class Message(Generic[MessageContent]):
         data = json.loads(json_message)
 
         # data must contain the message's sender, topic, content and date
-        assert_keys_exist([Message.KEYS.SENDER, Message.KEYS.TOPIC, Message.KEYS.CONTENT, Message.KEYS.DATE], data)
+        util.assert_keys_exist([Message.KEYS.SENDER, Message.KEYS.TOPIC, Message.KEYS.CONTENT, Message.KEYS.DATE], data)
 
         return Message(
             data[Message.KEYS.SENDER],
@@ -69,3 +69,6 @@ class Message(Generic[MessageContent]):
 
     def __repr__(self):
         return f"Message[#{self.sender}: {self.topic}: {self.date}: {self.content}]"
+
+
+Callback = Callable[[Message], Any]

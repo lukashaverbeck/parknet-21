@@ -1,9 +1,8 @@
 import math
 import time
-from collections import Callable
-from typing import Any
+from typing import Any, Callable
 
-from util.threaded import threaded
+import util
 
 
 def stabilized_concurrent(name: str, min_delay: float, max_delay: float, steps: int, daemon: bool = True) -> Callable:
@@ -15,7 +14,8 @@ def stabilized_concurrent(name: str, min_delay: float, max_delay: float, steps: 
         An execution was stable exactly if the decorated function returned True.
 
         Notes:
-            A ``@stabilized_concurrent`` function cannot return Values other than None since it is run in its own thread.
+            A ``@stabilized_concurrent`` function cannot return Values other than None since it is run in its own
+            thread.
 
         Args:
             name: Name of the thread the function is executed in.
@@ -51,7 +51,7 @@ def stabilized_concurrent(name: str, min_delay: float, max_delay: float, steps: 
         return min(max_delay, min_delay * math.exp(stable_intervals * math.log(max_delay / min_delay) / steps))
 
     def decorator(function: Callable[[Any], bool]) -> Callable:
-        @threaded(name, daemon)
+        @util.threaded(name, daemon)
         def concurrent_execution(*args, **kwargs) -> None:
             """ Concurrently executes the decorated function with dynamically calculated delays in between.
 
@@ -69,6 +69,10 @@ def stabilized_concurrent(name: str, min_delay: float, max_delay: float, steps: 
             while True:
                 # execute the decorated function and save the result
                 stable = function(*args, **kwargs)
+
+                # the decorated function must return a Boolean
+                assert stable is True or stable is False, f"A stabilized concurrent function must return a Boolean " \
+                                                          f"but {function.__name__}(...) did not."
 
                 # calculate a dynamic delay and stop the execution for the corresponding duration
                 delay = calc_delay(stable_intervals)

@@ -7,4 +7,5 @@ class Units:
 
 
 class ThreadNames:
+    MAIN_AGENT_ACTION: str = "T-Main-Agent-Action"
     SCAN: str = "T-Scan"

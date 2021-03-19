@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Dict, Callable, Any
+from typing import Dict
 
 import paho.mqtt.client as mqtt
 from paho.mqtt import publish
 
-from control import MainAgent
-from interaction.message import Message, MessageContent
-from util import Singleton
+import attributes
+import interaction
+import util
 
 BROKER_URL = "test.mosquitto.org"
 BROKER_PORT = 1883
@@ -16,15 +16,13 @@ TIMEOUT = 15
 
 TOPIC_PREFIX = "parknet-21/communication/"
 
-Callback = Callable[[Message], Any]
-
 
 class _Subscription:
-    def __init__(self, callback: Callback, receive_own: bool):
-        self.callback: Callback = callback
+    def __init__(self, callback: interaction.Callback, receive_own: bool):
+        self.callback: interaction.Callback = callback
         self.receive_own: bool = receive_own
 
-    def handle(self, message: Message) -> None:
+    def handle(self, message: interaction.Message) -> None:
         """ Calls the callback function if the message applies to the subscription.
 
         The message applies to the subscription exactly if it was sent by another agent or if the subscription
@@ -36,11 +34,11 @@ class _Subscription:
         """
 
         # check if message was sent by another agent or subscription applies to the agent's own messages
-        if message.sender != MainAgent.SIGNATURE or self.receive_own:
+        if message.sender != attributes.SIGNATURE or self.receive_own:
             self.callback(message)
 
 
-@Singleton
+@util.Singleton
 class _Connection:
     def __init__(self):
         self.subscriptions: Dict[str, _Subscription] = {}
@@ -51,7 +49,7 @@ class _Connection:
         # start listening for messages
         self.client.loop_start()
 
-    def subscribe(self, topic: str, callback: Callback, receive_own: bool) -> None:
+    def subscribe(self, topic: str, callback: interaction.Callback, receive_own: bool) -> None:
         """ Adds a communication subscription for a given topic.
 
         As there can only be one subscription per topic, prior subscriptions for the same topic are overwritten.
@@ -62,14 +60,14 @@ class _Connection:
             receive_own: Boolean whether the sender shall receive his own messages.
         """
 
-        # add subscription
+        # _add subscription
         self.subscriptions[topic] = _Subscription(callback, receive_own)
 
         # subscribe to communication broker
         self.client.subscribe(TOPIC_PREFIX + topic, qos=1)
 
     @staticmethod
-    def send(message: Message) -> None:
+    def send(message: interaction.Message) -> None:
         """ Publishes an encoded message.
 
         Args:
@@ -92,7 +90,7 @@ class _Connection:
         """
 
         # decode message
-        message = Message.decode(data.payload.decode())
+        message = interaction.Message.decode(data.payload.decode())
 
         # trigger subscription if existent
         if message.topic in self.subscriptions:
@@ -106,7 +104,7 @@ class Communication:
     def __init__(self):
         self._connection: _Connection = _Connection()
 
-    def _subscribe(self, topic: str, callback: Callback, receive_own: bool = False) -> None:
+    def _subscribe(self, topic: str, callback: interaction.Callback, receive_own: bool = False) -> None:
         """ Adds a communication subscription to the connection.
 
         See Also:
@@ -120,7 +118,7 @@ class Communication:
 
         self._connection.subscribe(topic, callback, receive_own)
 
-    def _send(self, topic: str, content: MessageContent) -> None:
+    def _send(self, topic: str, content: interaction.MessageContent) -> None:
         """ Publishes a message sent by the main agent.
 
         Args:
@@ -128,4 +126,4 @@ class Communication:
             content: Content of the message (JSON compatible).
         """
 
-        self._connection.send(Message(MainAgent.SIGNATURE, topic, content, datetime.now()))
+        self._connection.send(interaction.Message(attributes.SIGNATURE, topic, content, datetime.now()))

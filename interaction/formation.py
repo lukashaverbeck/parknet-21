@@ -3,10 +3,10 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Dict, List, Optional, TypedDict
 
-from control import MainAgent
-from interaction import Communication, Message
-from sensing.scanner import Scanner
-from util import Singleton, const
+import attributes
+import interaction
+import sensing
+import util
 
 
 class _Member:
@@ -60,7 +60,7 @@ class _Member:
             The main agent member.
         """
 
-        return _Member(MainAgent.SIGNATURE, MainAgent.DELTA, datetime.now() if filing else None)
+        return _Member(attributes.SIGNATURE, attributes.DELTA, datetime.now() if filing else None)
 
     def __init__(self, signature: str, delta: float, filing: Optional[datetime]):
         self.signature: str = signature
@@ -68,7 +68,7 @@ class _Member:
         self.filing: datetime = filing
 
     def __repr__(self):
-        return f"Agent[#{self.signature}, δ: {self.delta}{const.Units.DISTANCE}]"
+        return f"Agent[#{self.signature}, δ: {self.delta}{util.const.Units.DISTANCE}]"
 
     def __eq__(self, other: _Member):
         return self.signature == other.signature
@@ -137,7 +137,7 @@ class _RelationGraph:
         member = member_relation.member  # primary member
         ahead_signature = member_relation.ahead_signature  # signature of the secondary member
 
-        # add primary member as a vertex and the relation between the primary and the secondary member as an edge
+        # _add primary member as a vertex and the relation between the primary and the secondary member as an edge
         self.vertices[member.signature] = member
         self.edges[member.signature] = ahead_signature
 
@@ -163,7 +163,7 @@ class _RelationGraph:
             # get maximum linear transitivity starting from starting agent
             transitivity = self._linear_transitivity(starting_agent)
 
-            # add maximum linear transitivity to list
+            # _add maximum linear transitivity to list
             linear_transitivities.append(transitivity)
 
         return linear_transitivities
@@ -203,7 +203,7 @@ class _RelationGraph:
             # a linear transitivity must not contain cycles
             assert member not in transitivity_list, f"Found cycle in linear transitivity {transitivity_list}."
 
-            # add member to linear transitivity list
+            # _add member to linear transitivity list
             transitivity_list.append(member)
 
         return transitivity_list
@@ -284,37 +284,25 @@ class _RelationGraph:
         return self.vertices[signature]
 
     def __repr__(self):
-        return self.edges.__repr__()
+        return repr(self.edges)
 
 
-@Singleton
-class Formation(Communication):
-    @property
-    def agents(self) -> List[_Member]:
-        for max_linear_transitivity in self._relation_graph.max_linear_transitivities():
-            if any(member.signature == MainAgent.SIGNATURE for member in max_linear_transitivity):
-                return max_linear_transitivity
-
-        return [_Member.agent()]
-
+@util.Singleton
+class Formation(interaction.Communication):
     @property
     def delta_max(self) -> float:
         return max(member.delta for member in self)
 
-    @property
-    def delta(self) -> float:
-        number_of_members = len(self)
-        return const.Driving.SAFETY_DISTANCE + self.delta_max / number_of_members
-
     def __init__(self):
         super().__init__()
-        self._scanner = Scanner()
+        self.agents: List[_Member] = []
+        self._scanner = sensing.Scanner()
         self._relation_graph: _RelationGraph = _RelationGraph()
 
-        self._subscribe(Communication.TOPICS.FORMATION, self._handle_member_relation)
+        self._subscribe(interaction.Communication.TOPICS.FORMATION, self._handle_member_relation)
 
     def update(self, filing: bool = False) -> None:
-        """ Updates the member relation graph by sharing and saving the main agent's member relation.
+        """ Updates the member relation graph by adding and sharing main agent's member relation.
 
         Args:
             filing: Boolean whether the main agent is intending to leave the parking lane.
@@ -325,13 +313,24 @@ class Formation(Communication):
         member = _Member.agent(filing)
         member_relation = _MemberRelation(member, ahead_signature)
 
-        # add the member relation to the graph
+        # add and share the member relation
+        self._add(member_relation)
+        self._send(interaction.Communication.TOPICS.FORMATION, member_relation.encode())
+
+    def _add(self, member_relation: _MemberRelation) -> None:
         self._relation_graph.add(member_relation)
+        self._update_agents()
 
-        # share the member relation
-        self._send(Communication.TOPICS.FORMATION, member_relation.encode())
+    def _update_agents(self) -> None:
+        agents = [_Member.agent()]
 
-    def _handle_member_relation(self, message: Message[_MemberRelation.Dictionary]) -> None:
+        for max_linear_transitivity in self._relation_graph.max_linear_transitivities():
+            if any(member.signature == attributes.SIGNATURE for member in max_linear_transitivity):
+                agents = max_linear_transitivity
+
+        self.agents = agents
+
+    def _handle_member_relation(self, message: interaction.Message[_MemberRelation.Dictionary]) -> None:
         """ Handles an incoming member relation message by updating the formation member relation.
 
         Args:
@@ -340,7 +339,7 @@ class Formation(Communication):
 
         # decode message and add it to the graph
         member_relation = _MemberRelation.decode(message.content)
-        self._relation_graph.add(member_relation)
+        self._add(member_relation)
 
     def __eq__(self, other: Formation):
         return self.agents == other.agents
@@ -353,6 +352,9 @@ class Formation(Communication):
 
     def __contains__(self, item: _Member):
         return item in self.agents
+
+    def __getitem__(self, key: int):
+        return self.agents[key]
 
     def __repr__(self):
         return f"Formation{self.agents}"

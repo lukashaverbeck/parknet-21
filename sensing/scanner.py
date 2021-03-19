@@ -4,13 +4,13 @@ import picamera
 import picamera.array
 import pyzbar.pyzbar as pyzbar
 
-from util import Singleton
+import util
 
 RESOLUTION = (1920, 1080)
 BRIGHTNESS = 60
 
 
-@Singleton
+@util.Singleton
 class Scanner:
     def __init__(self):
         self._camera = picamera.PiCamera()

@@ -22,10 +22,13 @@ class EchoPins:
 class UltrasonicSensor:
     @property
     def value(self) -> float:
+        # calculate the time since last sensor update
         passed_time = datetime.now() - self._last_update
+
+        # check if the sensor value needs to be updated
         if passed_time.seconds >= UPDATE_INTERVAL:
-            self._last_update = datetime.now()
-            self._value = self._sensor.distance * 100
+            self._last_update = datetime.now()  # update timestamp of last sensor update
+            self._value = self._sensor.distance * 100  # update sensor value
 
         return self._value
 
@@ -35,6 +38,7 @@ class UltrasonicSensor:
         self._last_update: datetime = datetime.now()
 
 
+# assign front, right, rear and angled sensor as static variables
 UltrasonicSensor.FRONT = UltrasonicSensor(EchoPins.FRONT, TriggerPins.FRONT)
 UltrasonicSensor.RIGHT = UltrasonicSensor(EchoPins.RIGHT, TriggerPins.RIGHT)
 UltrasonicSensor.REAR = UltrasonicSensor(EchoPins.BACK, TriggerPins.BACK)
