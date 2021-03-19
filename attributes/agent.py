@@ -1,15 +1,22 @@
 import json
 import os.path
+from typing import List
 
 import util
 
 _ATTRIBUTES_PATH: str = "./agent.json"
-_SIGNATURE_KEY: str = "signature"
-_DELTA_KEY: str = "delta"
 _INITIALIZED: bool = False
+
+
+class _KEYS:
+    SIGNATURE: str = "signature"
+    DELTA: str = "delta"
+    STEERING_PARAMETERS: str = "steering"
+
 
 SIGNATURE: str
 DELTA: float
+STEERING_PARAMETERS: List[float]
 
 # there must be an attributes file in the root directory of the project
 assert os.path.exists(_ATTRIBUTES_PATH), f"Agent attributes ({_ATTRIBUTES_PATH}) is missing."
@@ -24,7 +31,7 @@ def initialize() -> None:
         AssertionError: If attributes file does not contain the required agent information.
     """
 
-    global SIGNATURE, DELTA, _INITIALIZED
+    global SIGNATURE, DELTA, STEERING_PARAMETERS, _INITIALIZED
 
     # open attributes file
     with open(_ATTRIBUTES_PATH) as attributes_file:
@@ -32,11 +39,12 @@ def initialize() -> None:
         attributes = json.load(attributes_file)
 
         # the attributes must include the agent's signature and delta
-        util.assert_keys_exist([_SIGNATURE_KEY, _DELTA_KEY], attributes)
+        util.assert_keys_exist([_KEYS.SIGNATURE, _KEYS.DELTA, _KEYS.STEERING_PARAMETERS], attributes)
 
-        # set the main agent's signature and delta and the initialization flag
-        SIGNATURE = attributes[_SIGNATURE_KEY]
-        DELTA = attributes[_DELTA_KEY]
+        # set the main agent's signature, delta and steering parameters and the initialization flag
+        SIGNATURE = attributes[_KEYS.SIGNATURE]
+        DELTA = attributes[_KEYS.DELTA]
+        STEERING_PARAMETERS = attributes[_KEYS.STEERING_PARAMETERS]
         _INITIALIZED = True
 
 

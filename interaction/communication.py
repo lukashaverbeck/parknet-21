@@ -10,11 +10,11 @@ import attributes
 import interaction
 import util
 
-BROKER_URL = "test.mosquitto.org"
-BROKER_PORT = 1883
-TIMEOUT = 15
+_BROKER_URL: str = "test.mosquitto.org"
+_BROKER_PORT: int = 1883
+_TIMEOUT: int = 15
 
-TOPIC_PREFIX = "parknet-21/communication/"
+_TOPIC_PREFIX: str = "parknet-21/communication/"
 
 
 class _Subscription:
@@ -44,7 +44,7 @@ class _Connection:
         self.subscriptions: Dict[str, _Subscription] = {}
         self.client: mqtt.Client = mqtt.Client()
         self.client.on_message = self.react
-        self.client.connect(BROKER_URL, BROKER_PORT, TIMEOUT)
+        self.client.connect(_BROKER_URL, _BROKER_PORT, _TIMEOUT)
 
         # start listening for messages
         self.client.loop_start()
@@ -64,7 +64,7 @@ class _Connection:
         self.subscriptions[topic] = _Subscription(callback, receive_own)
 
         # subscribe to communication broker
-        self.client.subscribe(TOPIC_PREFIX + topic, qos=1)
+        self.client.subscribe(_TOPIC_PREFIX + topic, qos=1)
 
     @staticmethod
     def send(message: interaction.Message) -> None:
@@ -78,7 +78,7 @@ class _Connection:
         json_message = message.encode()
 
         # publish message to broker
-        publish.single(TOPIC_PREFIX + message.topic, json_message, hostname=BROKER_URL)
+        publish.single(_TOPIC_PREFIX + message.topic, json_message, hostname=_BROKER_URL)
 
     def react(self, _client, _user, data: mqtt.MQTTMessage) -> None:
         """ Handles an incoming message by triggering the corresponding callback function (if existent).

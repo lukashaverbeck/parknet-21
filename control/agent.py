@@ -5,9 +5,9 @@ from typing import Callable
 import interaction
 import util
 
-MIN_DELAY = 0.2
-MAX_DELAY = 4
-DELAY_STEPS = 8
+_MIN_DELAY = 0.2
+_MAX_DELAY = 4
+_DELAY_STEPS = 8
 
 
 def _action(function: Callable[[MainAgent], None]):
@@ -51,7 +51,7 @@ class MainAgent:
 
         self._run()
 
-    @util.stabilized_concurrent(util.const.ThreadNames.MAIN_AGENT_ACTION, MIN_DELAY, MAX_DELAY, DELAY_STEPS, False)
+    @util.stabilized_concurrent(util.const.ThreadNames.MAIN_AGENT_ACTION, _MIN_DELAY, _MAX_DELAY, _DELAY_STEPS, False)
     def _run(self) -> bool:
         """ Concurrently updates the agent's state.
 
