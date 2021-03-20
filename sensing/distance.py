@@ -5,21 +5,21 @@ from gpiozero import DistanceSensor
 UPDATE_INTERVAL = 0.4
 
 
-class TriggerPins:
+class _TriggerPins:
     FRONT = 18
     RIGHT = 23
     BACK = 25
     BACK_ANGLED = 24
 
 
-class EchoPins:
+class _EchoPins:
     FRONT = 4
     RIGHT = 17
     BACK = 22
     BACK_ANGLED = 27
 
 
-class UltrasonicSensor:
+class _UltrasonicSensor:
     @property
     def value(self) -> float:
         # calculate the time since last sensor update
@@ -38,8 +38,8 @@ class UltrasonicSensor:
         self._last_update: datetime = datetime.now()
 
 
-# assign front, right, rear and angled sensor as static variables
-UltrasonicSensor.FRONT = UltrasonicSensor(EchoPins.FRONT, TriggerPins.FRONT)
-UltrasonicSensor.RIGHT = UltrasonicSensor(EchoPins.RIGHT, TriggerPins.RIGHT)
-UltrasonicSensor.REAR = UltrasonicSensor(EchoPins.BACK, TriggerPins.BACK)
-UltrasonicSensor.REAR_ANGLED = UltrasonicSensor(EchoPins.BACK_ANGLED, TriggerPins.BACK_ANGLED)
+class Distance:
+    FRONT = _UltrasonicSensor(_EchoPins.FRONT, _TriggerPins.FRONT)
+    RIGHT = _UltrasonicSensor(_EchoPins.RIGHT, _TriggerPins.RIGHT)
+    REAR = _UltrasonicSensor(_EchoPins.BACK, _TriggerPins.BACK)
+    REAR_ANGLED = _UltrasonicSensor(_EchoPins.BACK_ANGLED, _TriggerPins.BACK_ANGLED)

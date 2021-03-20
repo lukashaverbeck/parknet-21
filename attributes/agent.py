@@ -8,7 +8,7 @@ _ATTRIBUTES_PATH: str = "./agent.json"
 _INITIALIZED: bool = False
 
 
-class _KEYS:
+class _Keys:
     SIGNATURE: str = "signature"
     DELTA: str = "delta"
     STEERING_PARAMETERS: str = "steering"
@@ -39,12 +39,12 @@ def initialize() -> None:
         attributes = json.load(attributes_file)
 
         # the attributes must include the agent's signature and delta
-        util.assert_keys_exist([_KEYS.SIGNATURE, _KEYS.DELTA, _KEYS.STEERING_PARAMETERS], attributes)
+        util.assert_keys_exist([_Keys.SIGNATURE, _Keys.DELTA, _Keys.STEERING_PARAMETERS], attributes)
 
         # set the main agent's signature, delta and steering parameters and the initialization flag
-        SIGNATURE = attributes[_KEYS.SIGNATURE]
-        DELTA = attributes[_KEYS.DELTA]
-        STEERING_PARAMETERS = attributes[_KEYS.STEERING_PARAMETERS]
+        SIGNATURE = attributes[_Keys.SIGNATURE]
+        DELTA = attributes[_Keys.DELTA]
+        STEERING_PARAMETERS = attributes[_Keys.STEERING_PARAMETERS]
         _INITIALIZED = True
 
 

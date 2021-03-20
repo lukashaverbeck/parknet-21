@@ -98,7 +98,7 @@ class _Connection:
 
 
 class Communication:
-    class TOPICS:
+    class Topics:
         FORMATION = "formation"
 
     def __init__(self):

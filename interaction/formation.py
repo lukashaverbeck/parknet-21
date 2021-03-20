@@ -299,7 +299,7 @@ class Formation(interaction.Communication):
         self._scanner = sensing.Scanner()
         self._relation_graph: _RelationGraph = _RelationGraph()
 
-        self._subscribe(interaction.Communication.TOPICS.FORMATION, self._handle_member_relation)
+        self._subscribe(interaction.Communication.Topics.FORMATION, self._handle_member_relation)
 
     def update(self, filing: bool = False) -> None:
         """ Updates the member relation graph by adding and sharing main agent's member relation.
@@ -315,7 +315,7 @@ class Formation(interaction.Communication):
 
         # add and share the member relation
         self._add(member_relation)
-        self._send(interaction.Communication.TOPICS.FORMATION, member_relation.encode())
+        self._send(interaction.Communication.Topics.FORMATION, member_relation.encode())
 
     def _add(self, member_relation: _MemberRelation) -> None:
         self._relation_graph.add(member_relation)

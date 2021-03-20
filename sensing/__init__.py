@@ -1,5 +1,2 @@
-from sensing.distance import UltrasonicSensor
+from sensing.distance import Distance
 from sensing.scanner import Scanner
-
-
-

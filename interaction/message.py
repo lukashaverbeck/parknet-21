@@ -9,13 +9,14 @@ import util
 MessageContent = TypeVar("MessageContent")
 
 
-class Message(Generic[MessageContent]):
-    class KEYS:
-        SENDER: str = "sender"
-        CONTENT: str = "content"
-        TOPIC: str = "topic"
-        DATE: str = "date"
+class _Keys:
+    SENDER: str = "sender"
+    CONTENT: str = "content"
+    TOPIC: str = "topic"
+    DATE: str = "date"
 
+
+class Message(Generic[MessageContent]):
     def __init__(self, sender: str, topic: str, content: MessageContent, date: datetime):
         self.sender = sender
         self.topic = topic
@@ -32,10 +33,10 @@ class Message(Generic[MessageContent]):
         """
 
         return json.dumps({
-            self.KEYS.SENDER: self.sender,
-            self.KEYS.CONTENT: self.content,
-            self.KEYS.TOPIC: self.topic,
-            self.KEYS.DATE: self.date.timestamp()
+            _Keys.SENDER: self.sender,
+            _Keys.CONTENT: self.content,
+            _Keys.TOPIC: self.topic,
+            _Keys.DATE: self.date.timestamp()
         })
 
     @staticmethod
@@ -58,13 +59,13 @@ class Message(Generic[MessageContent]):
         data = json.loads(json_message)
 
         # data must contain the message's sender, topic, content and date
-        util.assert_keys_exist([Message.KEYS.SENDER, Message.KEYS.TOPIC, Message.KEYS.CONTENT, Message.KEYS.DATE], data)
+        util.assert_keys_exist([_Keys.SENDER, _Keys.TOPIC, _Keys.CONTENT, _Keys.DATE], data)
 
         return Message(
-            data[Message.KEYS.SENDER],
-            data[Message.KEYS.TOPIC],
-            data[Message.KEYS.CONTENT],
-            datetime.fromtimestamp(data[Message.KEYS.DATE])
+            data[_Keys.SENDER],
+            data[_Keys.TOPIC],
+            data[_Keys.CONTENT],
+            datetime.fromtimestamp(data[_Keys.DATE])
         )
 
     def __repr__(self):
