@@ -1,9 +1,9 @@
 class Driving:
-    SAFETY_DISTANCE: int = 5
+    SAFETY_DISTANCE: int = 50  # mm
 
 
 class Units:
-    DISTANCE: str = "cm"
+    DISTANCE: str = "mm"
 
 
 class ThreadNames:
