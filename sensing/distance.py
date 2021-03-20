@@ -2,21 +2,21 @@ from datetime import datetime
 
 from gpiozero import DistanceSensor
 
-UPDATE_INTERVAL = 0.4
+UPDATE_INTERVAL: float = 0.4
 
 
 class _TriggerPins:
-    FRONT = 18
-    RIGHT = 23
-    BACK = 25
-    BACK_ANGLED = 24
+    FRONT: int = 18
+    RIGHT: int = 23
+    BACK: int = 25
+    BACK_ANGLED: int = 24
 
 
 class _EchoPins:
-    FRONT = 4
-    RIGHT = 17
-    BACK = 22
-    BACK_ANGLED = 27
+    FRONT: int = 4
+    RIGHT: int = 17
+    BACK: int = 22
+    BACK_ANGLED: int = 27
 
 
 class _UltrasonicSensor:
@@ -39,7 +39,7 @@ class _UltrasonicSensor:
 
 
 class Distance:
-    FRONT = _UltrasonicSensor(_EchoPins.FRONT, _TriggerPins.FRONT)
-    RIGHT = _UltrasonicSensor(_EchoPins.RIGHT, _TriggerPins.RIGHT)
-    REAR = _UltrasonicSensor(_EchoPins.BACK, _TriggerPins.BACK)
-    REAR_ANGLED = _UltrasonicSensor(_EchoPins.BACK_ANGLED, _TriggerPins.BACK_ANGLED)
+    FRONT: _UltrasonicSensor = _UltrasonicSensor(_EchoPins.FRONT, _TriggerPins.FRONT)
+    RIGHT: _UltrasonicSensor = _UltrasonicSensor(_EchoPins.RIGHT, _TriggerPins.RIGHT)
+    REAR: _UltrasonicSensor = _UltrasonicSensor(_EchoPins.BACK, _TriggerPins.BACK)
+    REAR_ANGLED: _UltrasonicSensor = _UltrasonicSensor(_EchoPins.BACK_ANGLED, _TriggerPins.BACK_ANGLED)

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 
 import picamera
 import picamera.array
@@ -6,8 +6,8 @@ import pyzbar.pyzbar as pyzbar
 
 import util
 
-RESOLUTION = (1920, 1080)
-BRIGHTNESS = 60
+RESOLUTION: Tuple[int, int] = (1920, 1080)
+BRIGHTNESS: int = 60
 
 
 @util.Singleton

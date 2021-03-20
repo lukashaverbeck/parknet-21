@@ -5,9 +5,9 @@ from typing import Callable
 import interaction
 import util
 
-_MIN_DELAY = 0.2
-_MAX_DELAY = 4
-_DELAY_STEPS = 8
+_MIN_DELAY: float = 0.2
+_MAX_DELAY: float = 4
+_DELAY_STEPS: int = 8
 
 
 def _action(function: Callable[[MainAgent], None]):
