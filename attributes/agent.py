@@ -4,7 +4,8 @@ from typing import List
 
 import util
 
-_ATTRIBUTES_PATH: str = "./agent.json"
+_ATTRIBUTES_DIR: str = os.path.dirname(os.path.abspath(__file__))
+_ATTRIBUTES_PATH: str = os.path.join(_ATTRIBUTES_DIR, "agent.json")
 _INITIALIZED: bool = False
 
 
