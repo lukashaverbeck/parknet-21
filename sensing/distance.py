@@ -28,7 +28,7 @@ class _UltrasonicSensor:
         # check if the sensor value needs to be updated
         if passed_time.seconds >= UPDATE_INTERVAL:
             self._last_update = datetime.now()  # update timestamp of last sensor update
-            self._value = self._sensor.distance * 100  # update sensor value
+            self._value = self._sensor.distance  # update sensor value
 
         return self._value
 
